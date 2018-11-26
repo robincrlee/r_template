@@ -8,12 +8,24 @@ library(tidyr)
 
 conn <- dbConnect(bigquery(), project = "", dataset = "", 
                   use_legacy_sql = FALSE)
-sql <- "select ... from ..."
 
-df <- dbGetQuery(conn,sql)
+create_sql <- function(metric){
+	sql <- paste("select ... from ...", " where type = '", metric, "' group by 1")
+	return(sql)
+} 
 
-df_clean <- df %>% mutate() %>% filter()
+sql_metric1 <- create_sql(metric1)
+df_metric1 <- dbGetQuery(conn,sql_metric1)
+df_metric1_clean <- df_metric1 %>% mutate() %>% filter()
 
-ggplot(df_clean , aes(var1)) +
+ggplot(df_metric1_clean , aes(var1)) +
   geom_histogram()+
   facet_wrap(vars(var2), scales = "free")
+
+sql_metric2 <- create_sql(metric2)
+df_metric2 <- dbGetQuery(conn,sql_metric1)
+df_metric2_clean <- df_metric2 %>% mutate() %>% filter()
+
+ggplot(df_metric2_clean , aes(var1, var3)) +
+  geom_point()+
+  facet_wrap(vars(var2), scales = "free")  
